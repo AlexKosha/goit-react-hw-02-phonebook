@@ -1,63 +1,69 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as yup from 'yup';
+import styled from '@emotion/styled';
 
-import { FormInput, Form, FromButton } from './ContactForm.styled';
+import { FromButton } from './ContactForm.styled';
 
-export class ContactForm extends Component {
-  state = {
-    name: '',
-    number: '',
+const formatPhoneNumber = value => {
+  return value.replace(/(\d{3})(\d{2})(\d{2})/g, '$1-$2-$3');
+};
+
+const initialValues = {
+  name: '',
+  number: '',
+};
+
+const FromPhonebook = styled(Form)`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 20px;
+`;
+
+const Input = styled(Field)`
+  display: block;
+  border: 1px solid #ccc;
+  padding: 8px;
+  font-size: 16px;
+`;
+
+let schema = yup.object().shape({
+  name: yup.string().required(),
+  number: yup
+    .string()
+    .required()
+    .min(7)
+    .max(10)
+    .matches(/(\d{3})(\d{2})(\d{2})/g, '$1-$2-$3'),
+});
+
+export const ContactForm = ({ onSubmit }) => {
+  const handleSubmit = (values, { resetForm }) => {
+    const fromattedValue = formatPhoneNumber(values.number);
+    onSubmit(values.name, fromattedValue);
+    resetForm();
   };
 
-  handleChangeName = e => {
-    this.setState({ name: e.currentTarget.value });
-  };
-
-  handleChangeNumber = e => {
-    const value = e.currentTarget.value;
-    const formattedValue = this.formatPhoneNumber(value);
-    this.setState({ number: formattedValue });
-  };
-
-  handleSubmit = e => {
-    e.preventDefault();
-
-    this.props.onSubmit(this.state.name, this.state.number);
-    this.setState({ name: '', number: '' });
-  };
-
-  formatPhoneNumber = value => {
-    return value.replace(/(\d{3})(\d{2})(\d{2})/g, '$1-$2-$3');
-  };
-
-  render() {
-    const { name, number } = this.state;
-    return (
-      <Form onSubmit={this.handleSubmit}>
+  return (
+    <Formik
+      initialValues={initialValues}
+      onSubmit={handleSubmit}
+      validationSchema={schema}
+    >
+      <FromPhonebook>
         <label>
           Name
-          <FormInput
-            type="text"
-            name="name"
-            required
-            value={name}
-            onChange={this.handleChangeName}
-          />
+          <Input type="text" name="name" required />
+          <ErrorMessage name="name" />
         </label>
         <label>
           Number
-          <FormInput
-            type="tel"
-            name="number"
-            required
-            value={number}
-            onChange={this.handleChangeNumber}
-            maxLength={7}
-          />
+          <Input type="tel" name="number" />
+          <ErrorMessage name="number" />
         </label>
         <FromButton type="submit">Add contact</FromButton>
-      </Form>
-    );
-  }
-}
-
-export default Form;
+      </FromPhonebook>
+    </Formik>
+  );
+};

@@ -55,7 +55,6 @@ export class App extends Component {
     const isNameDublicate = contacts.some(contact => contact.name === newName);
 
     if (isNameDublicate) {
-      console.log(newName);
       alert(`${newName} is alredy in contacts`);
       return true;
     }
