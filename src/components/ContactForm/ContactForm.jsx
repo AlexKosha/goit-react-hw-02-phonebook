@@ -30,18 +30,13 @@ const Input = styled(Field)`
 
 let schema = yup.object().shape({
   name: yup.string().required(),
-  number: yup
-    .string()
-    .required()
-    .min(7)
-    .max(10)
-    .matches(/(\d{3})(\d{2})(\d{2})/g, '$1-$2-$3'),
+  number: yup.string().required().min(7).max(10),
 });
 
 export const ContactForm = ({ onSubmit }) => {
   const handleSubmit = (values, { resetForm }) => {
-    const fromattedValue = formatPhoneNumber(values.number);
-    onSubmit(values.name, fromattedValue);
+    const fromattedNumber = formatPhoneNumber(values.number);
+    onSubmit(values.name, fromattedNumber);
     resetForm();
   };
 
